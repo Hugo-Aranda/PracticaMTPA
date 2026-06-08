@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import modelo.Mensaje;
 import modelo.Salon;
 import modelo.Usuario;
 
@@ -47,7 +48,6 @@ public class HiloCliente extends Thread {
                     if (partes.length != 2) {
                         salida.println("ERROR;REGISTER;INVALID_FORMAT");
                     } else {
-
                         String nombre = partes[1];
                         String clave = String.valueOf(gestorClientes.getUsuarios().size() + 1001);
 
@@ -56,7 +56,6 @@ public class HiloCliente extends Thread {
                         } else {
                             salida.println("ERROR;REGISTER;USER_ALREADY_EXISTS");
                         }
-
                     }
 
                 } else if (partes[0].equals("LOGIN")) {
@@ -64,7 +63,6 @@ public class HiloCliente extends Thread {
                     if (partes.length != 3) {
                         salida.println("ERROR;LOGIN;INVALID_FORMAT");
                     } else {
-
                         String nombre = partes[1];
                         String clave = partes[2];
 
@@ -74,7 +72,6 @@ public class HiloCliente extends Thread {
                         } else {
                             salida.println("ERROR;LOGIN;INVALID_LOGIN");
                         }
-
                     }
 
                 } else if (partes[0].equals("GET_ROOMS")) {
@@ -94,7 +91,6 @@ public class HiloCliente extends Thread {
                     } else if (usuarioActual == null) {
                         salida.println("ERROR;JOIN_ROOM;INVALID_LOGIN");
                     } else {
-
                         String nombreSalon = partes[1];
 
                         if (gestorSalones.entrarSalon(nombreSalon, usuarioActual)) {
@@ -102,7 +98,6 @@ public class HiloCliente extends Thread {
                         } else {
                             salida.println("ERROR;JOIN_ROOM;ROOM_NOT_FOUND");
                         }
-
                     }
 
                 } else if (partes[0].equals("LEAVE_ROOM")) {
@@ -112,7 +107,6 @@ public class HiloCliente extends Thread {
                     } else if (usuarioActual == null) {
                         salida.println("ERROR;LEAVE_ROOM;INVALID_LOGIN");
                     } else {
-
                         String nombreSalon = partes[1];
 
                         if (gestorSalones.salirSalon(nombreSalon, usuarioActual)) {
@@ -120,7 +114,31 @@ public class HiloCliente extends Thread {
                         } else {
                             salida.println("ERROR;LEAVE_ROOM;NOT_IN_ROOM");
                         }
+                    }
 
+                } else if (partes[0].equals("SEND_ROOM")) {
+
+                    if (partes.length != 3) {
+                        salida.println("ERROR;SEND_ROOM;INVALID_FORMAT");
+                    } else if (usuarioActual == null) {
+                        salida.println("ERROR;SEND_ROOM;INVALID_LOGIN");
+                    } else {
+                        String nombreSalon = partes[1];
+                        String contenido = partes[2];
+
+                        if (contenido.length() > 190) {
+                            salida.println("ERROR;SEND_ROOM;MESSAGE_TOO_LONG");
+                        } else if (!gestorSalones.usuarioEstaEnSalon(nombreSalon, usuarioActual)) {
+                            salida.println("ERROR;SEND_ROOM;NOT_IN_ROOM");
+                        } else {
+                            Mensaje mensaje = new Mensaje(usuarioActual, nombreSalon, contenido);
+                            gestorSalones.guardarMensaje(nombreSalon, mensaje);
+                            salida.println("ROOM_MSG;" + nombreSalon +
+                            ";" + usuarioActual.getNombre() + 
+                            ";" + mensaje.getFechaHora() + 
+                            ";" + contenido);
+                            
+                        }
                     }
 
                 } else {
@@ -134,9 +152,7 @@ public class HiloCliente extends Thread {
             socket.close();
 
         } catch (Exception e) {
-
             e.printStackTrace();
-
         }
 
     }
