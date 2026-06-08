@@ -19,12 +19,21 @@ public class ServidorChat {
 
 			System.out.println("Servidor iniciado en el puerto "+ PUERTO);
 
-			while(true){
-				Socket socketCliente = servidor.accept();
+			while (true) {
 
-				System.out.println("Nuevo cliente conectado");
+        Socket socketCliente = servidor.accept();
 
-			}
+        System.out.println("Nuevo cliente conectado");
+
+        HiloCliente hiloCliente = new HiloCliente(
+                socketCliente,
+                gestorClientes,
+                gestorSalones
+        );
+
+        hiloCliente.start();
+
+    }
 
 
 		}catch(IOException e){

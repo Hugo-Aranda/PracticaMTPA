@@ -21,33 +21,58 @@ public class HiloCliente extends Thread {
     }
 
     @Override
-    public void run() {
+public void run() {
 
-        try {
+    try {
 
-            entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            salida = new PrintWriter(socket.getOutputStream(), true);
+        entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        salida = new PrintWriter(socket.getOutputStream(), true);
 
-            salida.println("OK;CONNECT;Cliente conectado al servidor");
+        salida.println("OK;CONNECT;Cliente conectado al servidor");
 
-            String linea;
+        String linea;
 
-            while ((linea = entrada.readLine()) != null) {
+        while ((linea = entrada.readLine()) != null) {
 
-                System.out.println("Cliente: " + linea);
+            System.out.println("Cliente: " + linea);
 
-                salida.println("OK;RECEIVED;Mensaje recibido");
+            String[] partes = linea.split(";");
+
+            if (partes[0].equals("REGISTER")) {
+
+                if (partes.length != 2) {
+                    salida.println("ERROR;REGISTER;INVALID_FORMAT");
+                } else {
+
+                    String nombre = partes[1];
+                    String clave = String.valueOf(gestorClientes.getUsuarios().size() + 1001);
+
+                    if (gestorClientes.registrarUsuario(nombre, clave)) {
+                        salida.println("OK;REGISTER;" + nombre + ";" + clave);
+                    } else {
+                        salida.println("ERROR;REGISTER;USER_ALREADY_EXISTS");
+                    }
+
+                }
+
+            } else {
+
+                salida.println("ERROR;UNKNOWN;INVALID_FORMAT");
 
             }
 
-	    socket.close();
-
-        } catch (IOException e) {
-
-            System.out.println("Error con cliente");
-
         }
 
+        socket.close();
+
+    } catch (Exception e) {
+
+        e.printStackTrace();
+
     }
+
+}
+           
+ 
 
 }
