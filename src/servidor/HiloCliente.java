@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 import modelo.Salon;
+import modelo.Usuario;
 
 public class HiloCliente extends Thread {
 
@@ -14,11 +15,13 @@ public class HiloCliente extends Thread {
     private GestorSalones gestorSalones;
     private BufferedReader entrada;
     private PrintWriter salida;
+    private Usuario usuarioActual;
 
     public HiloCliente(Socket socket, GestorClientes gestorClientes, GestorSalones gestorSalones) {
         this.socket = socket;
         this.gestorClientes = gestorClientes;
         this.gestorSalones = gestorSalones;
+        this.usuarioActual = null;
     }
 
     @Override
@@ -66,6 +69,7 @@ public class HiloCliente extends Thread {
                         String clave = partes[2];
 
                         if (gestorClientes.login(nombre, clave)) {
+                            usuarioActual = gestorClientes.buscarUsuario(nombre);
                             salida.println("OK;LOGIN;" + nombre);
                         } else {
                             salida.println("ERROR;LOGIN;INVALID_LOGIN");
@@ -82,6 +86,24 @@ public class HiloCliente extends Thread {
                     }
 
                     salida.println(respuesta);
+
+                } else if (partes[0].equals("JOIN_ROOM")) {
+
+                    if (partes.length != 2) {
+                        salida.println("ERROR;JOIN_ROOM;INVALID_FORMAT");
+                    } else if (usuarioActual == null) {
+                        salida.println("ERROR;JOIN_ROOM;INVALID_LOGIN");
+                    } else {
+
+                        String nombreSalon = partes[1];
+
+                        if (gestorSalones.entrarSalon(nombreSalon, usuarioActual)) {
+                            salida.println("OK;JOIN_ROOM;" + nombreSalon);
+                        } else {
+                            salida.println("ERROR;JOIN_ROOM;ROOM_NOT_FOUND");
+                        }
+
+                    }
 
                 } else {
 
