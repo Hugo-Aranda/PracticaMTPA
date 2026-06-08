@@ -133,11 +133,23 @@ public class HiloCliente extends Thread {
                         } else {
                             Mensaje mensaje = new Mensaje(usuarioActual, nombreSalon, contenido);
                             gestorSalones.guardarMensaje(nombreSalon, mensaje);
-                            salida.println("ROOM_MSG;" + nombreSalon +
-                            ";" + usuarioActual.getNombre() + 
-                            ";" + mensaje.getFechaHora() + 
-                            ";" + contenido);
-                            
+                            salida.println("ROOM_MSG;" + nombreSalon + ";" + usuarioActual.getNombre() + ";" + mensaje.getFechaHora() + ";" + contenido);
+                        }
+                    }
+
+                } else if (partes[0].equals("PRIVATE_MSG")) {
+
+                    if (partes.length != 3) {
+                        salida.println("ERROR;PRIVATE_MSG;INVALID_FORMAT");
+                    } else if (usuarioActual == null) {
+                        salida.println("ERROR;PRIVATE_MSG;INVALID_LOGIN");
+                    } else {
+                        String usuarioDestino = partes[1];
+
+                        if (!gestorClientes.estaConectado(usuarioDestino)) {
+                            salida.println("ERROR;PRIVATE_MSG;USER_NOT_CONNECTED");
+                        } else {
+                            salida.println("OK;PRIVATE_MSG;" + usuarioDestino);
                         }
                     }
 
