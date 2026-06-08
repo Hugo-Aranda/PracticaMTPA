@@ -8,6 +8,7 @@ import java.net.Socket;
 import modelo.Mensaje;
 import modelo.Salon;
 import modelo.Usuario;
+import persistencia.GestorPersistencia;
 
 public class HiloCliente extends Thread {
 
@@ -52,6 +53,8 @@ public class HiloCliente extends Thread {
                         String clave = String.valueOf(gestorClientes.getUsuarios().size() + 1001);
 
                         if (gestorClientes.registrarUsuario(nombre, clave)) {
+                            usuarioActual = gestorClientes.buscarUsuario(nombre);
+                            GestorPersistencia.guardarUsuario(usuarioActual);
                             salida.println("OK;REGISTER;" + nombre + ";" + clave);
                         } else {
                             salida.println("ERROR;REGISTER;USER_ALREADY_EXISTS");
@@ -133,6 +136,7 @@ public class HiloCliente extends Thread {
                         } else {
                             Mensaje mensaje = new Mensaje(usuarioActual, nombreSalon, contenido);
                             gestorSalones.guardarMensaje(nombreSalon, mensaje);
+                            GestorPersistencia.guardarMensaje(mensaje);
                             salida.println("ROOM_MSG;" + nombreSalon + ";" + usuarioActual.getNombre() + ";" + mensaje.getFechaHora() + ";" + contenido);
                         }
                     }
