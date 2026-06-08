@@ -10,7 +10,7 @@ public class ServidorChat {
 
 	public static void main(String[] args){
 
-		GestroClientes gestorClientes = new GestorClientes();
+		GestorClientes gestorClientes = new GestorClientes();
 		GestorSalones gestorSalones = new GestorSalones();
 
 		try {
