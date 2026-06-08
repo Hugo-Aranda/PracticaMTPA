@@ -105,6 +105,24 @@ public class HiloCliente extends Thread {
 
                     }
 
+                } else if (partes[0].equals("LEAVE_ROOM")) {
+
+                    if (partes.length != 2) {
+                        salida.println("ERROR;LEAVE_ROOM;INVALID_FORMAT");
+                    } else if (usuarioActual == null) {
+                        salida.println("ERROR;LEAVE_ROOM;INVALID_LOGIN");
+                    } else {
+
+                        String nombreSalon = partes[1];
+
+                        if (gestorSalones.salirSalon(nombreSalon, usuarioActual)) {
+                            salida.println("OK;LEAVE_ROOM;" + nombreSalon);
+                        } else {
+                            salida.println("ERROR;LEAVE_ROOM;NOT_IN_ROOM");
+                        }
+
+                    }
+
                 } else {
 
                     salida.println("ERROR;UNKNOWN;INVALID_FORMAT");
