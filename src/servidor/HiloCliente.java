@@ -1,10 +1,11 @@
 package servidor;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+
+import modelo.Salon;
 
 public class HiloCliente extends Thread {
 
@@ -71,6 +72,16 @@ public class HiloCliente extends Thread {
                         }
 
                     }
+
+                } else if (partes[0].equals("GET_ROOMS")) {
+
+                    String respuesta = "ROOM_LIST";
+
+                    for (Salon salon : gestorSalones.getSalones()) {
+                        respuesta = respuesta + ";" + salon.getNombre();
+                    }
+
+                    salida.println(respuesta);
 
                 } else {
 
