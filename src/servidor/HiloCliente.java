@@ -21,58 +21,73 @@ public class HiloCliente extends Thread {
     }
 
     @Override
-public void run() {
+    public void run() {
 
-    try {
+        try {
 
-        entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        salida = new PrintWriter(socket.getOutputStream(), true);
+            entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            salida = new PrintWriter(socket.getOutputStream(), true);
 
-        salida.println("OK;CONNECT;Cliente conectado al servidor");
+            salida.println("OK;CONNECT;Cliente conectado al servidor");
 
-        String linea;
+            String linea;
 
-        while ((linea = entrada.readLine()) != null) {
+            while ((linea = entrada.readLine()) != null) {
 
-            System.out.println("Cliente: " + linea);
+                System.out.println("Cliente: " + linea);
 
-            String[] partes = linea.split(";");
+                String[] partes = linea.split(";");
 
-            if (partes[0].equals("REGISTER")) {
+                if (partes[0].equals("REGISTER")) {
 
-                if (partes.length != 2) {
-                    salida.println("ERROR;REGISTER;INVALID_FORMAT");
+                    if (partes.length != 2) {
+                        salida.println("ERROR;REGISTER;INVALID_FORMAT");
+                    } else {
+
+                        String nombre = partes[1];
+                        String clave = String.valueOf(gestorClientes.getUsuarios().size() + 1001);
+
+                        if (gestorClientes.registrarUsuario(nombre, clave)) {
+                            salida.println("OK;REGISTER;" + nombre + ";" + clave);
+                        } else {
+                            salida.println("ERROR;REGISTER;USER_ALREADY_EXISTS");
+                        }
+
+                    }
+
+                } else if (partes[0].equals("LOGIN")) {
+
+                    if (partes.length != 3) {
+                        salida.println("ERROR;LOGIN;INVALID_FORMAT");
+                    } else {
+
+                        String nombre = partes[1];
+                        String clave = partes[2];
+
+                        if (gestorClientes.login(nombre, clave)) {
+                            salida.println("OK;LOGIN;" + nombre);
+                        } else {
+                            salida.println("ERROR;LOGIN;INVALID_LOGIN");
+                        }
+
+                    }
+
                 } else {
 
-                    String nombre = partes[1];
-                    String clave = String.valueOf(gestorClientes.getUsuarios().size() + 1001);
-
-                    if (gestorClientes.registrarUsuario(nombre, clave)) {
-                        salida.println("OK;REGISTER;" + nombre + ";" + clave);
-                    } else {
-                        salida.println("ERROR;REGISTER;USER_ALREADY_EXISTS");
-                    }
+                    salida.println("ERROR;UNKNOWN;INVALID_FORMAT");
 
                 }
 
-            } else {
-
-                salida.println("ERROR;UNKNOWN;INVALID_FORMAT");
-
             }
+
+            socket.close();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
 
         }
 
-        socket.close();
-
-    } catch (Exception e) {
-
-        e.printStackTrace();
-
     }
-
-}
-           
- 
 
 }
